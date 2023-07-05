@@ -31,7 +31,9 @@ const Signup = () => {
 
   const { signup } = useAuth();
 
-  const handleSignup = () => {
+  const handleSignup = async (event) => {
+    event.preventDefault();
+
     if (!email | !emailConf | !senha | !cpf | !nome | !telefone | !cep | !rua | !bairro | !numero) {
       setError("Preencha todos os campos"); {/* Se algum campo não for preenchido */}
       return;
@@ -41,14 +43,42 @@ const Signup = () => {
     }
 
     const res = signup(email, senha, cpf, nome, telefone, cep, rua, bairro, numero);
+    
+    try {
 
-    if (res) { {/* Se res retorna algo é pq deu erro */}
-      setError(res);
-      return;
+      const response = await fetch('https://localhost:7088/user', {
+        method: 'POST',
+        headers:{
+          'Content-Type': 'application/json',
+          'accept': '*/*'
+        },
+        body: JSON.stringify({
+          "fullName": nome,
+          "cpf": cpf,
+          "email": email,
+          "password": senha,
+          "phone": telefone,
+          "zipCode": cep,
+          "address": rua,
+          "number": numero,
+          "complement": "string",
+          "neighborhood": bairro,
+          "role": "user"
+        })
+      });
+
+      if (response.ok) {
+        console.log('Data sent successfully');
+        console.log(response);
+        alert("Usuário cadatrado com sucesso!");
+        navigate("/"); 
+      } else {
+        console.error('Error:', response.status);
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
-
-    alert("Usuário cadatrado com sucesso!");
-    navigate("/"); {/* Vai para Signin */}
+  
   };
 
   {/* Cofiguração da página */}
